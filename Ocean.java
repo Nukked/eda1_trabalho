@@ -1,3 +1,4 @@
+package vida;
 /* Ocean.java */
 
 /**
@@ -29,8 +30,12 @@ public class Ocean {
    *  Define any variables associated with an Ocean object here.  These
    *  variables MUST be private.
    */
+  
 
-
+    private Animal[][] ocean;
+    private int width;
+    private int height;
+    private int starveTime;
 
   /**
    *  The following methods are required for Part I.
@@ -44,38 +49,41 @@ public class Ocean {
    *  @param starveTime is the number of timesteps sharks survive without food.
    */
 
-  public Ocean(int i, int j, int starveTime) {
-    // Your solution here.
-  }
-
+    public Ocean(int i, int j, int starveTime) {
+        ocean = new Animal[i][j];
+        for (int x=0;x<i;x++)
+            for(int y=0;y<i;y++)
+                ocean[x][y] = new Animal();
+        width = i;
+        height = j;
+        this.starveTime = starveTime;
+    }
+      
   /**
    *  width() returns the width of an Ocean object.
    *  @return the width of the ocean.
    */
-
-  public int width() {
-    // Replace the following line with your solution.
-    return 1;
-  }
+    public int width(){
+        return width;
+    }
+    
+    
 
   /**
    *  height() returns the height of an Ocean object.
    *  @return the height of the ocean.
    */
+    public int height() {
+        return height;
+    }
 
-  public int height() {
-    // Replace the following line with your solution.
-    return 1;
-  }
-
+    
   /**
    *  starveTime() returns the number of timesteps sharks survive without food.
    *  @return the number of timesteps sharks survive without food.
    */
-
-  public int starveTime() {
-    // Replace the following line with your solution.
-    return 1;
+    public int starveTime() {
+        return starveTime;
   }
 
   /**
@@ -84,10 +92,9 @@ public class Ocean {
    *  @param x is the x-coordinate of the cell to place a fish in.
    *  @param y is the y-coordinate of the cell to place a fish in.
    */
-
-  public void addFish(int x, int y) {
-    // Your solution here.
-  }
+    public void addFish(int x, int y) {
+        ocean[x][y].setTipo(2);
+    }
 
   /**
    *  addShark() (with two parameters) places a newborn shark in cell (x, y) if
