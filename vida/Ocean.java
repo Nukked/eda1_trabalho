@@ -47,7 +47,7 @@ public class Ocean {
     public Ocean(int i, int j, int starveTime) {
         ocean = new Animal[i][j];
         for (int x = 0; x < i; x++) {
-            for (int y = 0; y < i; y++) {
+            for (int y = 0; y < j; y++) {
                 ocean[x][y] = new Animal();
             }
         }
@@ -115,14 +115,76 @@ public class Ocean {
      * @param y is the y-coordinate of the cell whose contents are queried.
      */
     public int cellContents(int x, int y) {
-        // Replace the following line with your solution.
-        return EMPTY;
+        return ocean[x][y].getTipo();
     }
     
-    private Integer[] vizinhos(int x, int y){
-        return 1;
+    private Integer[] vizinhos(int x, int y) {
+        Integer[] vizinhanca = new Integer[2];
+        int fishs = 0;
+        int shark = 0;
+        // ------------- Para tirar informacao da tabela
+        // -- Canto superior esquerdo 1
+        if (cellContents(((x - 1) + width) % width, ((y - 1) + height) % height) == 2) {
+            fishs++;
+        }
+        if (cellContents(((x - 1) + width) % width, ((y - 1) + height) % height) == 1) {
+            shark++;
+        }
+        // -- Superior, para cima 2
+        if (cellContents(x % width, ((y - 1) + height) % height) == 2) {
+            fishs++;
+        }
+        if (cellContents(x % width, ((y - 1) + height) % height) == 1) {
+            shark++;
+        }
+        // -- Superior Direito 3
+        if (cellContents((x + 1) % width, ((y - 1) + height) % height) == 2) {
+            fishs++;
+        }
+        if (cellContents((x + 1) % width, ((y - 1) + height) % height) == 1) {
+            shark++;
+        }
+        // --  Direito 4
+        if (cellContents((x + 1) % width, y % height) == 2) {
+            fishs++;
+        }
+        if (cellContents((x + 1) % width, y % height) == 1) {
+            shark++;
+        }
+        // -- Inf Direito 5
+        if (cellContents((x + 1) % width, (y + 1) % height) == 2) {
+            fishs++;
+        }
+        if (cellContents((x + 1) % width, (y + 1) % height) == 1) {
+            shark++;
+        }
+        // -- Baixo 6
+        if (cellContents(x % width, (y + 1) % height) == 2) {
+            fishs++;
+        }
+        if (cellContents(x % width, (y + 1) % height) == 1) {
+            shark++;
+        }
+        // -- Inf Esquerdo 7
+        if (cellContents(((x - 1) + width) % width, (y + 1) % height) == 2) {
+            fishs++;
+        }
+        if (cellContents(((x - 1) + width) % width, (y + 1) % height) == 1) {
+            shark++;
+        }
+        // --  Esquerdo 8
+        if (cellContents(((x - 1) + width) % width, y % height) == 2) {
+            fishs++;
+        }
+        if (cellContents(((x - 1) + width) % width, y % height) == 1) {
+            shark++;
+        }
+        vizinhanca[0] = fishs;
+        vizinhanca[1] = shark;
+        return vizinhanca;
     }
-
+    
+    
     /**
      * timeStep() performs a simulation timestep as described in README.
      *
