@@ -273,8 +273,13 @@ public class Ocean {
      * @param y is the y-coordinate of the cell whose contents are queried.
      */
     public int sharkFeeding(int x, int y) {
-        // Replace the following line with your solution.
-        return 0;
+        int feed;
+        if (ocean[x][y].getTipo() != SHARK) {
+            feed = -1;
+        } else {
+            feed = ocean[x][y].getFome();
+        }
+        return feed;
     }
 
 }
