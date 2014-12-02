@@ -29,8 +29,11 @@ public class RunLengthEncoding {
    *  Define any variables associated with a RunLengthEncoding object here.
    *  These variables MUST be private.
    */
-
-
+        DoubleLinkedList<TypeAndSizeAndStarve> runLength;
+	int width;
+	int height;
+	int starveTime;
+	DoubleLinkedList<TypeAndSizeAndStarve>.DoubleLinkedListIterator iter;
 
   /**
    *  The following methods are required for Part II.
@@ -47,6 +50,15 @@ public class RunLengthEncoding {
 
   public RunLengthEncoding(int i, int j, int starveTime) {
     // Your solution here.
+        this.starveTime = starveTime;
+        width = i;
+	height = j;
+	int k = i*j;
+	runLength = new DoubleLinkedList<TypeAndSizeAndStarve>(); 
+	TypeAndSizeAndStarve empty = new TypeAndSizeAndStarve(0, k);
+	runLength.add(empty);
+	restartRuns();
+      
   }
 
   /**
@@ -66,10 +78,17 @@ public class RunLengthEncoding {
    *         The sum of all elements of the runLengths array should be i * j.
    */
 
-  public RunLengthEncoding(int i, int j, int starveTime,
-                           int[] runTypes, int[] runLengths) {
+  public RunLengthEncoding(int i, int j, int starveTime, int[] runTypes, int[] runLengths) {
     // Your solution here.
-  }
+      this.starveTime = starveTime;
+		width = i;
+		height = j;
+		runLength = new DoubleLinkedList<TypeAndSizeAndStarve>(); 
+		for (int x=0; x<runTypes.length; x++)
+			runLength.add(new TypeAndSizeAndStarve(runTypes[x], runLengths[x]));
+		restartRuns();
+	}
+  
 
   /**
    *  restartRuns() and nextRun() are two methods that work together to return
@@ -95,7 +114,7 @@ public class RunLengthEncoding {
    */
 
   public void restartRuns() {
-    // Your solution here.
+    iter = (DoubleLinkedList<TypeAndSizeAndStarve>.DoubleLinkedListIterator) runLength.iterator();
   }
 
   /**
@@ -109,7 +128,12 @@ public class RunLengthEncoding {
 
   public TypeAndSize nextRun() {
     // Replace the following line with your solution.
-    return new TypeAndSize(Ocean.EMPTY, 1);
+    if(!iter.hasNext())
+			return null;
+		
+		TypeAndSizeAndStarve temp = iter.next();
+		TypeAndSize result = new TypeAndSize(temp.getType(), temp.getSize());
+		return result;
   }
 
   /**
@@ -120,8 +144,27 @@ public class RunLengthEncoding {
    */
 
   public Ocean toOcean() {
-    // Replace the following line with your solution.
-    return new Ocean(1, 1, 1);
+    Ocean newOcean = new Ocean(width, height, starveTime);
+		int x=0;
+		int y=0;
+		for(TypeAndSizeAndStarve runs: runLength)
+			for(int i = 0; i<runs.getSize(); i++){
+				if(y==width){
+					x++;
+					y=0;
+				}
+				if(runs.getType() == 1){
+					newOcean.addShark(y, x, starveTime);
+					y++;
+				}
+				else if(runs.getType() == 2){
+					newOcean.addFish(y, x);
+					y++;
+				}
+				else
+					y++;
+			}
+			return newOcean;
   }
 
   /**
@@ -136,9 +179,44 @@ public class RunLengthEncoding {
    */
 
   public RunLengthEncoding(Ocean sea) {
-    // Your solution here, but you should probably leave the following line
-    //   at the end.
-    check();
+    
+		width = sea.width();
+		height = sea.height();
+		int arraySize = width * height;
+		Animal[] arrayOcean = new Animal[arraySize];
+		int arrayIndex = 0;
+		runLength = new DoubleLinkedList<TypeAndSizeAndStarve>();
+		for(int i = 0; i < width; i++)
+	    	for (int j = 0; j < height; j++){
+	    		if(sea.cellContents(i, j) == 1){
+	    			arrayOcean[arrayIndex] = new Animal(sea.cellContents(i, j), sea.sharkFeeding(i, j));
+	    			arrayIndex++;
+	    		}
+	    		else{
+	    			arrayOcean[arrayIndex] = new Animal(sea.cellContents(i, j));
+	    			arrayIndex++;
+	    		}
+	    	}
+		int cont = 1;
+		for (int k = 1; k < arraySize; k++){
+			if(arrayOcean[k-1].getTipo() == arrayOcean[k].getTipo() && arrayOcean[k-1].getFome() == arrayOcean[k].getFome())
+				cont++;
+			else
+				if(arrayOcean[k-1].getTipo() == 1){
+					runLength.add(new TypeAndSizeAndStarve(1, cont, arrayOcean[k-1].getFome()));
+					cont = 1;
+				}
+				else{
+					runLength.add(new TypeAndSizeAndStarve(arrayOcean[k-1].getTipo(), cont));	
+					cont = 1;
+				}
+		}
+		if(arrayOcean[arraySize-1].getTipo() == 1)
+			runLength.add(new TypeAndSizeAndStarve(arrayOcean[arraySize-1].getTipo(), cont, arrayOcean[arraySize-1].getFome()));
+		else
+			runLength.add(new TypeAndSizeAndStarve(arrayOcean[arraySize-1].getTipo(), cont));
+		check();
+		restartRuns();
   }
 
   /**
@@ -183,7 +261,38 @@ public class RunLengthEncoding {
    *  lengths does not equal the number of cells in the ocean.
    */
 
-  public void check() {
+  public void check() {      
+		int cont = 0;
+		int prev = -1;
+		int feed = -1;
+		int flag = 0;
+		for (TypeAndSizeAndStarve x: runLength){
+			cont += x.getSize();
+			if(x.getType() == 1 && prev == 1)
+				if(x.getStarve() == feed)
+					flag = 1;
+			else if(x.getType() == prev && x.getStarve()<0)
+					flag = 1;
+			prev = x.getType();
+			feed = x.getStarve();
+		}
+		if(flag == 1)
+			System.out.println("Dois runs consecutivos têm exatamente o mesmo conteúdo");
+		if(cont != width*height){
+			System.out.println("A soma do comprimento de todos os Runs na lista não é igual ao número de células do oceano");
+		}
   }
 
+  
+    public String toString(){
+		String res = "";
+		for (TypeAndSizeAndStarve x: runLength)
+			if(x.getType() == 0)
+				res += "| ." + x.getSize() + " |\n";
+			else if(x.getType() == 1)
+				res += "| S" + x.getStarve() + "," + x.getSize()  + "|\n";
+			else if(x.getType() == 2)
+				res += "| F" + x.getSize() + " |\n";
+		return res;
+	}
 }
